@@ -1237,20 +1237,17 @@ GC_INNER void GC_do_blocking_inner(ptr_t data, void * context GC_ATTR_UNUSED)
     UNLOCK();
 }
 
-GC_API void GC_CALL GC_set_stackbottom(char * stackbottom)
+GC_API void GC_CALL GC_set_stackbottom(pthread_t thread, char * stackbottom)
 {
-    pthread_t self = pthread_self();
     GC_thread me;
 
-    LOCK();
-    me = GC_lookup_thread(self);
+    me = GC_lookup_thread(thread);
 
     if ((me -> flags & MAIN_THREAD) == 0) {
         me -> stack_end = stackbottom;
     } else {
         GC_stackbottom = stackbottom;
     }
-    UNLOCK();
 }
 
 GC_API char * GC_CALL GC_get_stackbottom()
