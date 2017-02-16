@@ -995,6 +995,14 @@ static void fork_child_proc(void)
 #   endif /* PARALLEL_MARK */
     RESTORE_CANCEL(fork_cancel_state);
     UNLOCK();
+
+    GC_ASSERT(I_DONT_HOLD_LOCK());
+    /* HACK: reinitialize mutex. It *should* be safe since we are running this
+       on the child, which only inherits a single thread. */
+    /* NB: mutex_destroy may return EBUSY, which makes no sense, but that's the
+       reason for the need of the reinitialization. */
+    pthread_mutex_destroy(&GC_allocate_ml);
+    pthread_mutex_init(&GC_allocate_ml, NULL);
 }
 
   /* Routines for fork handling by client (no-op if pthread_atfork works). */
