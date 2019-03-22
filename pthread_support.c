@@ -1385,6 +1385,21 @@ GC_API void GC_CALL GC_switch_to_coroutine(char * stackbottom)
     }
 }
 
+/* Sets the cool end of user stack in the specified thread.              */
+/* MUST be called with the GC disabled.                                 */
+GC_API void GC_CALL GC_set_stackbottom(void * thread, char * stackbottom)
+{
+    GC_thread me;
+
+    me = GC_lookup_thread((pthread_t) thread);
+
+    if ((me -> flags & MAIN_THREAD) == 0) {
+        me -> stack_end = stackbottom;
+    } else {
+        GC_stackbottom = stackbottom;
+    }
+}
+
 /* Returns the cool end of user stack of the current thread/corutine.   */
 /* When a thread starts it will be computed upon creation.              */
 /* If GC_switch_to_coroutine() is called, the returned value will match */
